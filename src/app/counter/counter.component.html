@@ -3,11 +3,19 @@
 <div class="countdownHolder"
   id="{{elementIds.TimerDisplay}}">
   <!-- count$ | async | toArray -->
-  <span class="position" *ngFor="let d of count | toArray">
-    <span class="digit static">
-      {{d}}
+  <!-- <ng-container  *ngIf="vm$ | async as vm"> -->
+    <ng-container *ngIf="count$ | async as count else elseBlock">
+    <span class="position" *ngFor="let d of count | toArray">
+      <span class="digit static">
+        {{d}}
+      </span>
     </span>
-  </span>
+  </ng-container>
+  <ng-template #elseBlock>
+    <span class="position">
+      <span class="digit static">0</span>
+    </span>
+  </ng-template>
 </div>
 
 <button type="button"

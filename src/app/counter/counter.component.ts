@@ -1,5 +1,6 @@
 import {Component, OnDestroy} from '@angular/core';
-import {NEVER, Subject, Subscription} from 'rxjs';
+import {NEVER, Subject, Subscription, interval, Observable, of} from 'rxjs';
+import {switchMap, map, startWith} from 'rxjs/operators';
 
 interface CounterState {
   isTicking: boolean;
@@ -22,13 +23,16 @@ enum ElementIds {
   InputCountDiff = 'input-count-diff'
 }
 
+// interface ViewModel {
+//   count: number;
+// }
 
 @Component({
   selector: 'app-counter',
   templateUrl: './counter.component.html',
   styleUrls: ['./counter.component.scss']
 })
-export class CounterComponent implements OnDestroy {
+export class CounterComponent {
   elementIds = ElementIds;
 
   initialCounterState: CounterState = {
@@ -43,22 +47,17 @@ export class CounterComponent implements OnDestroy {
   btnPause: Subject<Event> = new Subject<Event>();
   btnSetTo: Subject<Event> = new Subject<Event>();
   inputSetTo: Subject<Event> = new Subject<Event>();
-
-  subscription: Subscription;
-  count = 0;
+  // vm$: Observable<ViewModel>;
+  count$: Observable<number>;
 
   constructor() {
     /* Replace never with your code */
-    this.subscription = NEVER
-      .subscribe(
-        (next) => {
-          /* */
-        }
-      );
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    const interval$ = interval(1000);
+    const btnStart$ = this.btnStart.pipe(
+      switchMap(() => interval$),
+      // map(value => ({ count: value}))
+    );
+    this.count$ = btnStart$;
   }
 
   getInputValue = (event: HTMLInputElement): number => {
