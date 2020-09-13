@@ -1,6 +1,6 @@
-import {Component, OnDestroy} from '@angular/core';
-import {NEVER, Subject, Subscription, interval, Observable, of} from 'rxjs';
-import {switchMap, map, startWith} from 'rxjs/operators';
+import { Component } from '@angular/core';
+import { interval, merge, NEVER, Observable, Subject } from 'rxjs';
+import { mapTo, switchMap, scan, startWith, tap } from 'rxjs/operators';
 
 interface CounterState {
   isTicking: boolean;
@@ -47,17 +47,21 @@ export class CounterComponent {
   btnPause: Subject<Event> = new Subject<Event>();
   btnSetTo: Subject<Event> = new Subject<Event>();
   inputSetTo: Subject<Event> = new Subject<Event>();
-  // vm$: Observable<ViewModel>;
   count$: Observable<number>;
 
   constructor() {
     /* Replace never with your code */
-    const interval$ = interval(1000);
-    const btnStart$ = this.btnStart.pipe(
-      switchMap(() => interval$),
-      // map(value => ({ count: value}))
+    const interval$ = interval(this.initialCounterState.tickSpeed);
+    const btnPause$ = this.btnPause.pipe(
+      mapTo(false)
     );
-    this.count$ = btnStart$;
+    const btnStart$ = this.btnStart.pipe(
+      mapTo(true)
+    );
+    this.count$ = merge(btnStart$, btnPause$).pipe(
+      switchMap(value => !value ? NEVER : interval$),
+      scan(acc => ++acc, 0)
+    );
   }
 
   getInputValue = (event: HTMLInputElement): number => {
