@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { interval, merge, NEVER, Observable, Subject } from 'rxjs';
-import { mapTo, switchMap, scan, startWith, tap } from 'rxjs/operators';
+import { mapTo, scan, startWith, switchMap, withLatestFrom } from 'rxjs/operators';
 
 interface CounterState {
   isTicking: boolean;
@@ -46,6 +46,7 @@ export class CounterComponent {
   btnStart: Subject<Event> = new Subject<Event>();
   btnPause: Subject<Event> = new Subject<Event>();
   btnSetTo: Subject<Event> = new Subject<Event>();
+  btnReset: Subject<Event> = new Subject<Event>();
   inputSetTo: Subject<Event> = new Subject<Event>();
   count$: Observable<number>;
 
@@ -55,12 +56,29 @@ export class CounterComponent {
     const btnPause$ = this.btnPause.pipe(
       mapTo(false)
     );
+
     const btnStart$ = this.btnStart.pipe(
       mapTo(true)
     );
-    this.count$ = merge(btnStart$, btnPause$).pipe(
-      switchMap(value => !value ? NEVER : interval$),
-      scan(acc => ++acc, 0)
+
+    const play$ = merge(btnStart$, btnPause$).pipe(
+      switchMap(value => !value ? NEVER : interval$)
+    );
+
+    const btnSetTo$ = this.btnSetTo.pipe(
+      withLatestFrom(this.inputSetTo, (_, givenValue) => +givenValue),
+      startWith(0)
+    );
+
+    const btnReset$ = this.btnReset.pipe(
+      mapTo(0)
+    );
+
+    this.count$ = merge(btnSetTo$, btnReset$).pipe(
+      switchMap(value => play$.pipe(
+        scan(acc => ++acc, value),
+        startWith(value)
+      ))
     );
   }
 

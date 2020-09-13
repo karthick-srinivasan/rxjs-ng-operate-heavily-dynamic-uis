@@ -44,7 +44,8 @@
   (input)="inputSetTo.next(getInputValue($event))"/>
 
 <button type="button"
-  id="{{elementIds.BtnReset}}">
+  id="{{elementIds.BtnReset}}"
+  (click)="btnReset.next($event)">
   Reset
 </button>
 
