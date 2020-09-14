@@ -52,12 +52,14 @@
 <br/>
 
 <button type="button"
-  id="{{elementIds.BtnUp}}">
+  id="{{elementIds.BtnUp}}"
+  (click)="direction.next(true)">
   Count Up
 </button>
 
 <button type="button"
-  id="{{elementIds.BtnDown}}">
+  id="{{elementIds.BtnDown}}"
+  (click)="direction.next(false)">
   Count Down
 </button>
 

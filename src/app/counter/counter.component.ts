@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { interval, merge, NEVER, Observable, Subject } from 'rxjs';
-import { mapTo, scan, startWith, switchMap, withLatestFrom } from 'rxjs/operators';
+import { interval, merge, NEVER, Observable, Subject, combineLatest, BehaviorSubject } from 'rxjs';
+import { mapTo, scan, startWith, switchMap, withLatestFrom, map } from 'rxjs/operators';
 
 interface CounterState {
   isTicking: boolean;
@@ -23,10 +23,6 @@ enum ElementIds {
   InputCountDiff = 'input-count-diff'
 }
 
-// interface ViewModel {
-//   count: number;
-// }
-
 @Component({
   selector: 'app-counter',
   templateUrl: './counter.component.html',
@@ -48,6 +44,7 @@ export class CounterComponent {
   btnSetTo: Subject<Event> = new Subject<Event>();
   btnReset: Subject<Event> = new Subject<Event>();
   inputSetTo: Subject<Event> = new Subject<Event>();
+  direction = new BehaviorSubject<boolean>(true);
   count$: Observable<number>;
 
   constructor() {
@@ -76,7 +73,7 @@ export class CounterComponent {
 
     this.count$ = merge(btnSetTo$, btnReset$).pipe(
       switchMap(value => play$.pipe(
-        scan(acc => ++acc, value),
+        scan(acc => this.direction.value ? ++acc : --acc, value),
         startWith(value)
       ))
     );
