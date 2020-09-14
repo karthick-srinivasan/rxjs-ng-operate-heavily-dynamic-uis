@@ -78,4 +78,5 @@
 </label>
 <input id="{{elementIds.InputCountDiff}}"
   type="number" min=0
-  value="{{initialCounterState.countDiff}}"/>
+  value="{{initialCounterState.countDiff}}" 
+  (input)="countDiff.next(getInputValue($event))"/>

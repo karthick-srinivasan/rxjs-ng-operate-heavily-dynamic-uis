@@ -46,6 +46,7 @@ export class CounterComponent {
   inputSetTo: Subject<Event> = new Subject<Event>();
   tickSpeed: Subject<number> = new Subject<number>();
   direction = new BehaviorSubject<boolean>(true);
+  countDiff = new BehaviorSubject<number>(this.initialCounterState.countDiff);
   count$: Observable<number>;
 
   constructor() {
@@ -78,7 +79,7 @@ export class CounterComponent {
 
     this.count$ = merge(btnSetTo$, btnReset$).pipe(
       switchMap(value => play$.pipe(
-        scan(acc => this.direction.value ? ++acc : --acc, value),
+        scan(acc => this.counterFn(acc), value),
         startWith(value)
       ))
     );
@@ -86,6 +87,11 @@ export class CounterComponent {
 
   getInputValue = (event: HTMLInputElement): number => {
     return parseInt(event['target'].value, 10);
+  }
+
+  counterFn = (value: number) => {
+    const countDiff = this.countDiff.value;
+    return this.direction.value ? (value + countDiff) : (value - countDiff);
   }
 
 }
