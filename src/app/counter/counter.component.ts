@@ -44,12 +44,17 @@ export class CounterComponent {
   btnSetTo: Subject<Event> = new Subject<Event>();
   btnReset: Subject<Event> = new Subject<Event>();
   inputSetTo: Subject<Event> = new Subject<Event>();
+  tickSpeed: Subject<number> = new Subject<number>();
   direction = new BehaviorSubject<boolean>(true);
   count$: Observable<number>;
 
   constructor() {
     /* Replace never with your code */
-    const interval$ = interval(this.initialCounterState.tickSpeed);
+    const interval$ = this.tickSpeed.pipe(
+      startWith(this.initialCounterState.tickSpeed),
+      switchMap(value => interval(value))
+    );
+
     const btnPause$ = this.btnPause.pipe(
       mapTo(false)
     );
